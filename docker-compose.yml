@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # バックエンドサービス（Django）
+  backend:
+    build: ./backend
+    container_name: self-order-backend
+    restart: always
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=True
+      - DATABASE_HOST=db
+      - DATABASE_NAME=self_order_db
+      - DATABASE_USER=self_order_user
+      - DATABASE_PASSWORD=self_order_password
+      - DATABASE_PORT=3306
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # フロントエンドサービス（Vue3）
+  frontend:
+    build: ./frontend
+    container_name: self-order-frontend
+    restart: always
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    command: npm run serve
+
+  # データベースサービス（MySQL）
+  db:
+    image: mysql:8.0
+    container_name: self-order-db
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=self_order_db
+      - MYSQL_USER=self_order_user
+      - MYSQL_PASSWORD=self_order_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
+
+networks:
+  default:
+    name: self-order-network

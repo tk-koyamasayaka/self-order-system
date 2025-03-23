@@ -1,0 +1,20 @@
+# Webフレームワーク
+Django==4.2.7
+
+# API
+django-ninja==0.22.2
+pydantic==1.10.8
+
+# データベース
+mysqlclient==2.1.1
+
+# CORS
+django-cors-headers==4.3.0
+
+# 環境変数
+python-dotenv==1.0.0
+
+# 開発ツール
+black==23.3.0
+flake8==6.0.0
+isort==5.12.0
