@@ -147,7 +147,13 @@ def create_order(request, payload: OrderCreate):
         order.total_price = total_price
         order.save()
         
-        return 201, order
+        # 最新の注文データを取得して返す（関連する注文明細も含む）
+        # prefetch_relatedを使用して関連する注文明細と商品を一度に取得
+        updated_order = Order.objects.prefetch_related(
+            'items__product'
+        ).get(id=order.id)
+        
+        return 201, updated_order
 
 @order_router.put("/{order_id}", response=OrderOut)
 def update_order(request, order_id: int, payload: OrderUpdate):
